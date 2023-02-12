@@ -1,7 +1,7 @@
 {
-  "name": "@lc-cn/ts-dev-template",
-  "version": "1.0.0",
-  "description": "ts开发环境配置",
+  "name": "@zhinjs/shared",
+  "version": "0.0.1",
+  "description": "知音共享模块",
   "main": "lib/index.js",
   "scripts": {
     "start": "node .",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lc-cn/ts-dev-template.git"
+    "url": "git+https://github.com/zhinjs/shared.git"
   },
   "keywords": [
     "ts",
@@ -22,11 +22,12 @@
   "author": "凉菜",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lc-cn/ts-dev-template/issues"
+    "url": "https://github.com/zhinjs/shared/issues"
   },
-  "homepage": "https://github.com/lc-cn/ts-dev-template#readme",
+  "homepage": "https://github.com/zhinjs/shared#readme",
   "devDependencies": {
     "@types/node": "latest",
+    "@types/lodash": "^4.14.191",
     "ts-node-dev": "latest",
     "tsc-alias": "latest",
     "tsconfig-paths": "latest",
@@ -37,5 +38,7 @@
     "/lib/**/*.d.ts",
     "/lib/**/LICENSE"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }

@@ -1,2 +1,2 @@
-import {sayHello} from "@/hello";
-console.log(sayHello('world'))
+export * from './types'
+export * from './utils'
