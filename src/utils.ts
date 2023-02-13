@@ -229,18 +229,15 @@ export function is<K extends keyof typeof globalThis>(type: K, value: any): valu
         || Object.prototype.toString.call(value).slice(8, -1) === type
 }
 export function getPackageInfo(filepath:string){
-    const fileDir = path.dirname(filepath)
-    if (fs.existsSync(path.resolve(fileDir, '../package.json'))) {
-        const {name: fullName, ...packageJson} = require(path.join(fileDir, '../package.json')) as PackageJson
-        if(packageJson.main.startsWith('./')) packageJson.main=packageJson.main.slice(1)
-        if(!filepath.endsWith(packageJson.main)) return null
-        return Object.assign(packageJson,{fullName})
-    } else if (fs.existsSync(path.resolve(fileDir, 'package.json'))) {
-        const {name: fullName, ...packageJson} = require(path.resolve(fileDir, 'package.json')) as PackageJson
-        if(packageJson.main.startsWith('./')) packageJson.main=packageJson.main.slice(1)
-        if(!filepath.endsWith(packageJson.main)) return null
-        return Object.assign(packageJson,{fullName})
-    }
+    const isTs=filepath.endsWith('.ts')
+    const filename=filepath.split(path.sep).reverse()[0]
+    const isMain=/index\.(t|j)s$/.test(filename)
+    let dir=path.dirname(filepath)
+    if(!fs.existsSync(path.join(dir,'package.json'))) dir=path.dirname(dir)
+    if(!fs.existsSync(path.join(dir,'package.json'))) return null
+    const packageJson=require(path.join(dir,'package.json'))
+    if(filepath===path.resolve(dir,packageJson.main||`index.${isTs?'ts':'js'}`)) return {...packageJson,fullName:packageJson.name}
+    if(isMain && packageJson.main && /.+index\.(t|j)s$/.test(packageJson.main)) return {...packageJson,fullName:packageJson.name}
     return null
 }
 export function wrapExport(filepath: string) {
