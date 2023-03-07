@@ -1,6 +1,6 @@
 {
   "name": "@zhinjs/shared",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "知音共享模块",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -40,8 +40,5 @@
     "/lib/**/*.js",
     "/lib/**/*.d.ts",
     "/lib/**/LICENSE"
-  ],
-  "dependencies": {
-    "lodash": "^4.17.21"
-  }
+  ]
 }

@@ -2,25 +2,16 @@
 import {Dict, PackageJson} from "./types";
 import * as path from "path";
 import * as fs from "fs";
-import CallSite = NodeJS.CallSite;
 import {networkInterfaces} from "os";
 import {IncomingMessage} from "http";
-export const {
-    isPlainObject,
-    isObject,
-    isArray,
-    isEmpty,
-    clone,
-    merge,
-    mergeWith,
-    mixin,
-    without,
-    cloneWith,
-    toString,
-    pickBy,
-    invert
-} = require('lodash') as typeof import('lodash')
-
+export const isArray=Array.isArray
+export const isObject=<T=never>(obj:T)=> obj && typeof obj==='object' && !isArray(obj)
+export const isEmpty=<T=never>(obj:T)=>{
+    if(isArray(obj)) return obj.length===0
+    if(!obj || typeof obj!=="object") return true
+    if(obj instanceof Map||obj instanceof Set) return obj.size===0
+    return Object.keys(obj).length===0
+}
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 const lookup = new Uint8Array(256);
 
@@ -158,12 +149,6 @@ export function omit<T, K extends keyof T>(source: T, keys?: Iterable<K>) {
     return result
 }
 
-const mCQInside = {
-    "&": "&amp;",
-    ",": "&#44;",
-    "[": "&#91;",
-    "]": "&#93;",
-};
 type MergeType<B={},N={}>={
     [P in keyof B|keyof N]:P extends keyof N?N[P]:P extends keyof B?B[P]:unknown
 }
@@ -200,29 +185,6 @@ export function Mixin<T extends new (...args:any[])=>any,O extends (new (...args
         copyProperties(Mix.prototype, mixin.prototype); // 拷贝原型属性
     }
     return Mix as MergedManyClass<T, O>
-}
-export function qs(text:string, sep = ",", equal = "="){
-    const ret:Record<string, any> = {};
-    text.split(sep).forEach((c) => {
-        const i = c.indexOf(equal);
-        if (-1 === i) {
-            return;
-        }
-        ret[c.substring(0, i)] = c
-            .substring(i + 1)
-            .replace(new RegExp(Object.values(mCQInside).join("|"), "g"), (s) => invert(mCQInside)[s] || "");
-    });
-    for (const k in ret) {
-        try {
-            if ("text" !== k) {
-                ret[k] = JSON.parse(ret[k]);
-            }
-        }
-        catch (e) {
-            // do nothing
-        }
-    }
-    return ret;
 }
 export function is<K extends keyof typeof globalThis>(type: K, value: any): value is InstanceType<typeof globalThis[K]> {
     return type in globalThis && value instanceof (globalThis[type] as any)
@@ -266,7 +228,7 @@ export function getCaller(){
         return stack
     }
     const err = new Error()
-    const stack:CallSite[] = err.stack as unknown as CallSite[]
+    const stack:NodeJS.CallSite[] = err.stack as unknown as NodeJS.CallSite[]
     Error.prepareStackTrace = origPrepareStackTrace
     stack.shift()
     stack.shift()
@@ -341,6 +303,36 @@ export function trimSlash(source: string) {
     return source.replace(/\/$/, '')
 }
 
+export function getValue<T>(obj: T, path: string[]) {
+    path=[...path]
+    if (!obj || typeof obj !== 'object') return obj
+    let result = obj
+    while (path.length>1) {
+        const key = path.shift()
+        result = result[key] || {}
+    }
+    if(path.length) return result[path.shift()]
+}
+export function setValue<T>(obj:T,path:string[],value:any){
+    path=[...path]
+    if (!obj || typeof obj !== 'object') return obj
+    let result = obj
+    while (path.length>1) {
+        const key = path.shift()
+        result = result[key] ||= {}
+    }
+    if(path.length) return result[path.shift()]=value
+}
+export function deleteValue<T>(obj:T,path:string[]){
+    path=[...path]
+    if (!obj || typeof obj !== 'object') return obj
+    let result = obj
+    while (path.length>1) {
+        const key = path.shift()
+        result = result[key]|| {}
+    }
+    if(path.length) return delete result[path.shift()]
+}
 export function sanitize(source: string) {
     if (!source.startsWith('/')) source = '/' + source
     return trimSlash(source)
